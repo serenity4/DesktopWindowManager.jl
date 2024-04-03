@@ -1,7 +1,7 @@
 name = "DesktopWindowManager"
 uuid = "94386f1d-92c8-40aa-b9f2-763fabdcf2c5"
 authors = ["Cédric Belmant"]
-version = "1.0.0-DEV"
+version = "0.1.0"
 
 [compat]
 julia = "1.10"

@@ -1,5 +1,7 @@
 module DesktopWindowManager
 
-# Write your package code here.
+function test()
+  @ccall user32.something()::Cvoid
+end
 
 end

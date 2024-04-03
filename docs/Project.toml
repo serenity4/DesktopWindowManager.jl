@@ -1,0 +1,3 @@
+[deps]
+DesktopWindowManager = "94386f1d-92c8-40aa-b9f2-763fabdcf2c5"
+Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
