@@ -3,6 +3,9 @@ uuid = "94386f1d-92c8-40aa-b9f2-763fabdcf2c5"
 authors = ["Cédric Belmant"]
 version = "0.1.0"
 
+[deps]
+CEnum = "fa961155-64e5-5f13-b03f-caf6b980ea82"
+
 [compat]
 julia = "1.10"
 

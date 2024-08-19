@@ -1,0 +1,33 @@
+[general]
+output_file_path = "../src/api/windows.jl"
+use_deterministic_symbol = true
+print_using_CEnum = true
+printer_blacklist = [
+        "GRAYSTRINGPROC",
+        "WNDENUMPROC",
+        "HOOKPROC",
+        "SENDASYNCPROC",
+        "PROPENUMPROCA",
+        "PROPENUMPROCW",
+        "PROPENUMPROCEXA",
+        "PROPENUMPROCEXW",
+        "WNDPROC",
+        "DLGPROC",
+        "EXCEPTION_ROUTINE",
+        "TIMERPROC",
+        "MONITORENUMPROC"
+      ]
+extract_c_comment_style = "doxygen"
+struct_field_comment_style = "outofline"
+enumerator_comment_style = "outofline"
+[general.log] # uncomment to help debugging
+CodegenMacro_log = false
+ResolveDependency_log = false
+
+[codegen]
+use_ccall_macro = true
+add_record_constructors = true
+union_single_constructor = true
+opaque_as_mutable_struct = false
+[codegen.macro]
+macro_mode = "none"
