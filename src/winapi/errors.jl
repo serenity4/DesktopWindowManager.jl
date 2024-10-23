@@ -1,3 +1,22 @@
+may_be_an_error(ret) = iszero(ret)
+may_be_an_error(ret::Ptr) = ret == typeof(ret)(0)
+
+macro check(ex)
+  quote
+    ret = $(esc(ex))
+    if may_be_an_error(ret)
+      # Sometimes, the return value of a function may be zero by design, which is then not indicative of an error.
+      # In that case, the last error should have been set to zero before calling it to ensure we know whether it really is an error.
+      code = get_last_error()
+      if code ≠ 0
+        err = ErrorCode(code)
+        error("$(bitmask_name(err)): failed to execute ", $(string(ex)))
+      end
+    end
+    ret
+  end
+end
+
 @bitmask ErrorCode::DWORD begin
   ERROR_INVALID_FUNCTION = 1
   ERROR_FILE_NOT_FOUND = 2

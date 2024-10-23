@@ -1,0 +1,25 @@
+const CW_USEDEFAULT = 0x00000008
+
+const SW_HIDE = 0
+const SW_SHOWNORMAL = 1
+const SW_NORMAL = 1
+const SW_SHOWMINIMIZED = 2
+const SW_SHOWMAXIMIZED = 3
+const SW_MAXIMIZE = 3
+const SW_SHOWNOACTIVATE = 4
+const SW_SHOW = 5
+const SW_MINIMIZE = 6
+const SW_SHOWMINNOACTIVE = 7
+const SW_SHOWNA = 8
+const SW_RESTORE = 9
+const SW_SHOWDEFAULT = 10
+const SW_FORCEMINIMIZE = 11
+const SW_MAX = 11
+
+const GWL_EXSTYLE = -20
+const GWLP_HINSTANCE = -6
+const GWLP_HWNDPARENT = -8
+const GWLP_ID = -12
+const GWL_STYLE = -16
+const GWLP_USERDATA = -21
+const GWLP_WNDPROC = -4
