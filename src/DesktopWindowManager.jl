@@ -31,7 +31,7 @@ include("events.jl")
 
 const hInstance = Ref(C_NULL)
 
-is_supported() = (hInstance[] == C_NULL)
+is_supported() = hInstance[] ≠ C_NULL
 
 function __init__()
   if Sys.iswindows()
