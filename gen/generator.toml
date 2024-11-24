@@ -1,5 +1,6 @@
 [general]
-output_file_path = "../src/api/windows.jl"
+library_name = "user32"
+output_file_path = "library.jl"
 use_deterministic_symbol = true
 print_using_CEnum = true
 printer_blacklist = [
@@ -15,11 +16,313 @@ printer_blacklist = [
         "DLGPROC",
         "EXCEPTION_ROUTINE",
         "TIMERPROC",
-        "MONITORENUMPROC"
+        "MONITORENUMPROC",
+
+        # Any symbols aimed at annotation functionality only.
+        "^_.*[a-z]_$",
+        "^__.*(?:[a-z]|IRQL)$",
+        "_Translates_last_error_to_HRESULT_",
+        "BENIGN_RACE_BEGIN",
+        "BENIGN_RACE_END",
+        "NO_COMPETING_THREAD_BEGIN",
+        "NO_COMPETING_THREAD_END",
+        "APIENTRY",
+        "PASCAL",
+        "WINAPI_INLINE",
+        "FAR",
+        "NEAR",
+
+        # Unions with a constructor for a tuple of bytes,
+        # resulting in a precompilation warning.
+        "_IMAGE_AUX_SYMBOL",
+        "IMAGE_AUX_SYMBOL",
+        "PIMAGE_AUX_SYMBOL",
+        "_DISPATCHER_CONTEXT_NONVOLREG_ARM64",
+        "DISPATCHER_CONTEXT_NONVOLREG_ARM64",
+        'var"struct (unnamed at C:/Program Files (x86)/Windows Kits/10/Include/10.0.22621.0/um\\winnt.h:18965:5)"',
+
+        # Functions with argument names that make `@ccall` compilation fail.
+        "EncodePointer",
+        "DecodePointer",
+        "EncodeSystemPointer",
+        "DecodeSystemPointer",
+        "EncodeRemotePointer",
+        "DecodeRemotePointer",
+
+        # Ignore these macros that forward to `__unaligned` or similar, which provoke errors on inclusion (`__unaligned` is undefined).
+        "UNALIGNED",
+        "UNALIGNED64",
+
+        # Same for `__declspec(dllimport)`.
+        "DECLSPEC_IMPORT",
+        "NOT_BUILD_WINDOWS_DEPRECATE",
+        "WINSCARDDATA",
+        "_WINAPI_DEPRECATED_DECLARATION",
+
+        # Same for `DECLSPEC_ALIGN`.
+        "DECLSPEC_CACHEALIGN",
+
+        # Dependents of `DECLSPEC_IMPORT`.
+        "NTSYSAPI",
+        "NTSYSCALLAPI",
+        "WINGDIAPI",
+        "WINSPOOLAPI",
+        "WINNORMALIZEAPI",
+        "WINMMAPI",
+        "WINSHELLAPI",
+        "SHSTDAPI",
+        "SHDOCAPI",
+        "WINCRYPT32API",
+        "DPAPI_IMP",
+        "WINOLEAPI",
+        "WINOLEAUTAPI",
+        "WINCOMMCTRLAPI",
+        "WINCOMMDLGAPI",
+
+        # Same for `__inline`.
+        "FORCEINLINE",
+
+        # Dependents of `FORCEINLINE`.
+        "CFORCEINLINE",
+        "STKFORCEINLINE",
+        "PFORCEINLINE",
+
+        # These are incorrectly defined as `Cvoid(...)`,
+        # and virtually of no use whatsoever.
+        "NOP_FUNCTION",
+        "NCB_POST",
+
+        # Other C-specific macro definitions that are not used in Julia.
+        "NTAPI_INLINE",
+        "STDMETHODCALLTYPE",
+        "STDAPICALLTYPE",
+        "STDAPI",
+        "STDMETHODIMP",
+        "STDOVERRIDEMETHODIMP",
+        "IFACEMETHODIMP",
+        "STDAPIV",
+        "STDMETHODIMPV",
+        "STDOVERRIDEMETHODIMPV",
+        "IFACEMETHODIMPV",
+
+        # Deprecated.
+        "LANG_SYSTEM_DEFAULT",
+        "LANG_USER_DEFAULT",
+        "LOCALE_SYSTEM_DEFAULT",
+        "LOCALE_USER_DEFAULT",
+        "LOCALE_CUSTOM_DEFAULT",
+        "LOCALE_CUSTOM_UNSPECIFIED",
+        "LOCALE_CUSTOM_UI_DEFAULT",
+        "LOCALE_NEUTRAL",
+        "LOCALE_INVARIANT",
+        "LOCALE_UNASSIGNED_LCID",
+        "DEPRECATED",
+
+        # These macros expand to curly braces, e.g. '{0, 0, 0, 0, 0}', which won't map to anything in Julia without an explicit type.
+        "SECURITY_NULL_SID_AUTHORITY",
+        "SECURITY_WORLD_SID_AUTHORITY",
+        "SECURITY_LOCAL_SID_AUTHORITY",
+        "SECURITY_CREATOR_SID_AUTHORITY",
+        "SECURITY_NON_UNIQUE_AUTHORITY",
+        "SECURITY_RESOURCE_MANAGER_AUTHORITY",
+        "SECURITY_NT_AUTHORITY",
+        "SECURITY_APP_PACKAGE_AUTHORITY",
+        "SECURITY_MANDATORY_LABEL_AUTHORITY",
+        "SECURITY_SCOPED_POLICY_ID_AUTHORITY",
+        "SECURITY_AUTHENTICATION_AUTHORITY",
+        "SECURITY_PROCESS_TRUST_AUTHORITY",
+        "SYSTEM_LUID",
+        "ANONYMOUS_LOGON_LUID",
+        "LOCALSERVICE_LUID",
+        "NETWORKSERVICE_LUID",
+        "IUSER_LUID",
+        "PROTECTED_TO_SYSTEM_LUID",
+        "RTL_RUN_ONCE_INIT",
+        "INIT_ONCE_STATIC_INIT", # <- dependent on previous
+        "RTL_SRWLOCK_INIT",
+        "SRWLOCK_INIT", # <- dependent on previous
+        "RTL_CONDITION_VARIABLE_INIT",
+        "CONDITION_VARIABLE_INIT", # <- dependent on previous
+        "CRYPTPROTECT_DEFAULT_PROVIDER",
+        "DeviceDsmDefinition_None",
+        "DeviceDsmDefinition_Trim",
+        "DeviceDsmDefinition_DrtQuery",
+        "DeviceDsmDefinition_DrtClear",
+        "DeviceDsmDefinition_DrtDisable",
+        "DeviceDsmDefinition_Map",
+        "DeviceDsmDefinition_RegenerateParity",
+        "DeviceDsmDefinition_NvCache_Evict",
+        "DeviceDsmDefinition_ScopeRegen",
+        "DeviceDsmDefinition_OpenZone",
+        "DeviceDsmDefinition_FinishZone",
+        "DeviceDsmDefinition_CloseZone",
+        "DeviceDsmDefinition_ResetWritePointer",
+        "DeviceDsmDefinition_WriteZeroes",
+        "DeviceDsmDefinition_VdtSet",
+        "WMI_DISK_GEOMETRY_GUID",
+
+        # Concatenations between L strings that are invalidly treated as string function calls.
+        "CERT_EFSBLOB_REGPATH",
+        "CERT_PROT_ROOT_FLAGS_REGPATH",
+        "CERT_TRUST_PUB_SAFER_GROUP_POLICY_REGPATH",
+        "CERT_DISABLE_ROOT_AUTO_UPDATE_REGPATH",
+        "CERT_GROUP_POLICY_CHAIN_CONFIG_REGPATH",
+
+        # Wrap these manually.
+        ## All these rely on construction of unsigned integers or pointers from negative values, disallowed in Julia by default.
+        "MEMORY_CURRENT_PARTITION_HANDLE",
+        "MEMORY_SYSTEM_PARTITION_HANDLE",
+        "MEMORY_EXISTING_VAD_PARTITION_HANDLE",
+        "MEM_DEDICATED_ATTRIBUTE_NOT_SPECIFIED",
+        "MAILSLOT_NO_MESSAGE",
+        "MAILSLOT_WAIT_FOREVER",
+        "NUMA_NO_PREFERRED_NODE",
+        "INVALID_SET_FILE_POINTER",
+        "INVALID_FILE_ATTRIBUTES",
+        "STD_INPUT_HANDLE",
+        "STD_OUTPUT_HANDLE",
+        "STD_ERROR_HANDLE",
+        "ASFW_ANY",
+        "ENUM_CURRENT_SETTINGS",
+        "ENUM_REGISTRY_SETTINGS",
+        "ATTACH_PARENT_PROCESS",
+        "SCARD_AUTOALLOCATE",
+        "SCARD_READER_SEL_AUTH_PACKAGE",
+        "IGP_GETIMEVERSION",
+        "IMAGE_SYM_CLASS_END_OF_FUNCTION",
+        "INVALID_HANDLE_VALUE",
+        "ERROR_FLT_NO_HANDLER_DEFINED",
+        "ERROR_FLT_CONTEXT_ALREADY_DEFINED",
+        "ERROR_FLT_INVALID_ASYNCHRONOUS_REQUEST",
+        "ERROR_FLT_DISALLOW_FAST_IO",
+        "ERROR_FLT_INVALID_NAME_REQUEST",
+        "ERROR_FLT_NOT_SAFE_TO_POST_OPERATION",
+        "ERROR_FLT_NOT_INITIALIZED",
+        "ERROR_FLT_FILTER_NOT_READY",
+        "ERROR_FLT_POST_OPERATION_CLEANUP",
+        "ERROR_FLT_INTERNAL_ERROR",
+        "ERROR_FLT_DELETING_OBJECT",
+        "ERROR_FLT_MUST_BE_NONPAGED_POOL",
+        "ERROR_FLT_DUPLICATE_ENTRY",
+        "ERROR_FLT_CBDQ_DISABLED",
+        "ERROR_FLT_DO_NOT_ATTACH",
+        "ERROR_FLT_DO_NOT_DETACH",
+        "ERROR_FLT_INSTANCE_ALTITUDE_COLLISION",
+        "ERROR_FLT_INSTANCE_NAME_COLLISION",
+        "ERROR_FLT_FILTER_NOT_FOUND",
+        "ERROR_FLT_VOLUME_NOT_FOUND",
+        "ERROR_FLT_INSTANCE_NOT_FOUND",
+        "ERROR_FLT_CONTEXT_ALLOCATION_NOT_FOUND",
+        "ERROR_FLT_INVALID_CONTEXT_REGISTRATION",
+        "ERROR_FLT_NAME_CACHE_MISS",
+        "ERROR_FLT_NO_DEVICE_OBJECT",
+        "ERROR_FLT_VOLUME_ALREADY_MOUNTED",
+        "ERROR_FLT_NO_WAITER_FOR_REPLY",
+        "HWND_BROADCAST",
+        "HWND_MESSAGE",
+        "HWND_DESKTOP",
+        "HWND_TOP",
+        "HWND_BOTTOM",
+        "HWND_TOPMOST",
+        "HWND_NOTOPMOST",
+        "CW_USEDEFAULT",
+        "OBJID_WINDOW",
+        "OBJID_SYSMENU",
+        "OBJID_TITLEBAR",
+        "OBJID_MENU",
+        "OBJID_CLIENT",
+        "OBJID_VSCROLL",
+        "OBJID_HSCROLL",
+        "OBJID_SIZEGRIP",
+        "OBJID_CARET",
+        "OBJID_CURSOR",
+        "OBJID_ALERT",
+        "OBJID_SOUND",
+        "OBJID_QUERYCLASSNAMEIDX",
+        "OBJID_NATIVEOM",
+        "HKEY_CLASSES_ROOT",
+        "HKEY_CURRENT_USER",
+        "HKEY_LOCAL_MACHINE",
+        "HKEY_USERS",
+        "HKEY_PERFORMANCE_DATA",
+        "HKEY_PERFORMANCE_TEXT",
+        "HKEY_PERFORMANCE_NLSTEXT",
+        "HKEY_CURRENT_CONFIG",
+        "HKEY_DYN_DATA",
+        "HKEY_CURRENT_USER_LOCAL_SETTINGS",
+        ## Uses 0X... instead of 0x...
+        "GGI_MARK_NONEXISTING_GLYPHS",
+
+        "REPARSE_GUID_DATA_BUFFER_HEADER_SIZE",
+        "IMAGE_ENCLAVE_MINIMUM_CONFIG_SIZE",
+        "NOTIFYICONDATAA_V2_SIZE",
+        "NOTIFYICONDATAW_V2_SIZE",
+        "NOTIFYICONDATAA_V3_SIZE",
+        "NOTIFYICONDATAW_V3_SIZE",
+
+        # These macro definitions rely on `DEFINE_GUID` macros that were skipped in basic mode.
+        "GUID_HUPR_ADAPTIVE_DISPLAY_TIMEOUT",
+        "GUID_HUPR_ADAPTIVE_DIM_TIMEOUT",
+        "DiskClassGuid",
+        "CdRomClassGuid",
+        "PartitionClassGuid",
+        "TapeClassGuid",
+        "WriteOnceDiskClassGuid",
+        "VolumeClassGuid",
+        "MediumChangerClassGuid",
+        "FloppyClassGuid",
+        "CdChangerClassGuid",
+        "StoragePortClassGuid",
+        "HiddenVolumeClassGuid",
+        "GUID_CLASS_COMPORT",
+        "GUID_SERENUM_BUS_ENUMERATOR",
+
+        # This one relies on `MessageText` defines (`STATUS_POSSIBLE_DEADLOCK` in this case) that is also skipped.
+        "EXCEPTION_POSSIBLE_DEADLOCK",
+
+        # Relies on a `__ImagePolicyMetadata` built-in that is not defined.
+        "IMAGE_POLICY_METADATA_NAME",
+
+        # Rely on missing function definitions
+        "LoadEnclaveImage",
+        "GetSystemWow64Directory",
+        "ENUMRESLANGPROC",
+        "ENUMRESNAMEPROC",
+        "ENUMRESTYPEPROC",
+        "GetModuleFileName",
+        "GetModuleHandle",
+        "PGET_MODULE_HANDLE_EX",
+        "GetModuleHandleEx",
+        "LoadLibraryEx",
+        "LoadString",
+        "LoadLibrary",
+        "EnumResourceNames",
+        "GetBinaryType",
+        "GetShortPathName",
+        "SetEnvironmentStrings",
+        "SetFileShortName",
+        "LookupAccountNameLocal",
+        "LookupAccountSidLocal",
+        "wsprintf",
+        "PostAppMessage",
+        "CreateWindow",
+        "CreateDialog",
+        "CreateDialogIndirect",
+        "DialogBox",
+        "DialogBoxIndirect",
+
+        # Relies on field attributes.
+        "PROC_THREAD_ATTRIBUTE_PROTECTION_LEVEL",
+
+        # Relies on missing declarations.
+        "SPOINTER_32",
+        "UPOINTER_32",
+        "__int3264",
       ]
 extract_c_comment_style = "doxygen"
 struct_field_comment_style = "outofline"
 enumerator_comment_style = "outofline"
+
 [general.log] # uncomment to help debugging
 CodegenMacro_log = false
 ResolveDependency_log = false
@@ -29,5 +332,6 @@ use_ccall_macro = true
 add_record_constructors = true
 union_single_constructor = true
 opaque_as_mutable_struct = false
+
 [codegen.macro]
-macro_mode = "none"
+macro_mode = "basic"
