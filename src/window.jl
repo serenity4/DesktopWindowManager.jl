@@ -12,7 +12,7 @@ end
 mutable struct Window <: AbstractWindow
   handle::Ptr{Cvoid}
   callback::CFunction
-  user_data_ref#::RefValue(CallbackData)
+  user_data#::CallbackData
   Window() = new()
 end
 
@@ -43,7 +43,7 @@ end
 function retrieve_callback_data(hwnd::Ptr{Cvoid})
   data_ptr = @ccall user32.GetWindowLongPtrA(hwnd::Ptr{Cvoid}, GWLP_USERDATA::Cint)::Ptr{Cvoid}
   data_ptr == C_NULL && return (; wm = nothing, window = nothing)
-  unsafe_load(Ptr{CallbackData}(data_ptr))
+  unsafe_pointer_to_objref(data_ptr)::CallbackData
 end
 
 function set_window_user_data(hwnd, data_ptr)

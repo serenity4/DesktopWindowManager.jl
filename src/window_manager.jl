@@ -12,7 +12,7 @@ end
 
 WindowAbstractions.window_type(::WindowManager) = Window
 
-struct CallbackData
+mutable struct CallbackData
   wm::WindowManager
   window::Window
 end
@@ -21,13 +21,12 @@ function Window(wm::WindowManager; window_title = "", class_name = String(gensym
   callback = @cfunction($window_callback, Ptr{Cvoid}, (Ptr{Cvoid}, WindowMessage, Ptr{UInt32}, Ptr{Cvoid}))
   class = create_window_class(callback, class_name)
   window = Window()
-  user_data_ref = Ref(CallbackData(wm, window))
-  handle = @check create_window(class.win.lpszClassName, window_title, style, unsafe_convert(Ptr{CallbackData}, user_data_ref))
+  user_data = CallbackData(wm, window)
+  handle = @check create_window(class.win.lpszClassName, window_title, style, pointer_from_objref(user_data))
   window.handle = handle
   window.callback = callback
-  window.user_data_ref = user_data_ref
+  window.user_data = user_data
   finalizer(destroy_window, window)
-
   push!(wm.windows, window)
   window
 end
